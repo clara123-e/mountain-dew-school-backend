@@ -9,7 +9,23 @@ dotenv.config()
 
 const app = express()
 
-app.use(cors({ origin: process.env.FRONTEND_URL }))
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean)
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+
+      return callback(new Error('Origin not allowed by CORS'))
+    },
+  }),
+)
 // express.json() must come BEFORE the routes, or req.body is empty
 app.use(express.json())
 

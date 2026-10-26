@@ -1,21 +1,36 @@
 import { Sequelize } from 'sequelize'
+import pg from 'pg'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Hosted databases (Supabase, Render) use DATABASE_URL. Local setups use the separate DB_* values.
+// Explicitly provide the PostgreSQL driver to Sequelize.
+const commonOptions = {
+  dialect: 'postgres',
+  dialectModule: pg,
+  logging: false,
+}
+
 const sequelize = process.env.DATABASE_URL
   ? new Sequelize(process.env.DATABASE_URL, {
-      dialect: 'postgres',
-      logging: false,
-      dialectOptions: { ssl: { require: true, rejectUnauthorized: false } },
+      ...commonOptions,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
+      },
     })
-  : new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      dialect: 'postgres',
-      logging: false,
-    })
+  : new Sequelize(
+      process.env.DB_NAME,
+      process.env.DB_USER,
+      process.env.DB_PASSWORD,
+      {
+        ...commonOptions,
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+      }
+    )
 
 export async function testConnection() {
   try {

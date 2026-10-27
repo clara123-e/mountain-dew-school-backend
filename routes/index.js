@@ -1,6 +1,10 @@
+
 import authRoute from './auth.route.js'
+import schoolClassRoute from './schoolClass.route.js'
 
 export function mountRoutes(app) {
   app.use('/api/auth', authRoute)
-  // Inquiry, wishlist and the other routers are added here next, behind verifyToken
+  app.use('/api/admin/classes', schoolClassRoute)
+
+  // Other existing routes should remain registered here.
 }
